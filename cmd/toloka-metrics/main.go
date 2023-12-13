@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"toloka-metrics/internal/toloka"
 )
 
@@ -20,7 +21,15 @@ func main() {
 			userinput += ". "
 		}
 
-		cmd := exec.Command("python", "-m", "test.color_build_data", "--userinput", userinput)
+		cmd := exec.Command(
+			"python",
+			"-m",
+			"test.color_build_data",
+			"--userinput", userinput,
+			"--file", k.File,
+			"--question", strconv.Itoa(int(k.Question)),
+			"--answer", strconv.Itoa(int(k.Answer)),
+		)
 		cmd.Dir = "C:/Users/misha/chatgpt-research"
 
 		stdin, err := cmd.StdinPipe()
