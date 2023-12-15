@@ -1,13 +1,7 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
-	"log"
-	"os"
-	"os/exec"
-	"strconv"
-	"sync"
+	metrics "toloka-metrics/internal/metrics"
 	"toloka-metrics/internal/toloka"
 )
 
@@ -15,67 +9,7 @@ func main() {
 
 	res := toloka.NewResponseData()
 
-	var wg sync.WaitGroup
-	sem := make(chan struct{}, 4)
-	for k, v := range res {
-		k := k
-		v := v
-
-		wg.Add(1)
-		go func() {
-
-			sem <- struct{}{}
-			defer func() {
-				wg.Done()
-				<-sem
-			}()
-
-			fmt.Println("key:", k, "value", v, "\n")
-			userinput := ""
-			for _, sentence := range v {
-				userinput += sentence.Text
-				userinput += ". "
-
-			}
-
-			cmd := exec.Command(
-				"python",
-				"-m",
-				"test.color_build_data",
-				"--userinput", userinput,
-				"--file", k.File,
-				"--question", strconv.Itoa(int(k.Question)),
-				"--answer", strconv.Itoa(int(k.Answer)),
-			)
-
-			cmd.Dir = "C:/Users/misha/chatgpt-research"
-
-			stdin, err := cmd.StdinPipe()
-			if err != nil {
-				log.Println("Can't execute python script")
-				log.Println(err)
-			}
-			defer stdin.Close()
-
-			var output bytes.Buffer
-
-			cmd.Stdout = &output
-			cmd.Stderr = os.Stderr
-			if err = cmd.Start(); err != nil {
-				log.Printf("error in starting python commnad: %v", err)
-			}
-
-			err = cmd.Wait()
-			if err != nil {
-				log.Println(err)
-			}
-
-			fmt.Printf(" Result: %v", output.String())
-		}()
-
-	}
-
-	wg.Wait()
+	metrics.GetColored(res)
 
 	//cmd := exec.Command("python", "-m", "test.color_build_data", "--userinput", "Elvis")
 	//cmd.Dir = "C:/Users/misha/chatgpt-research"
