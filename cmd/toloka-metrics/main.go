@@ -2,14 +2,14 @@ package main
 
 import (
 	metrics "toloka-metrics/internal/metrics"
-	"toloka-metrics/internal/toloka"
+	toloka "toloka-metrics/internal/toloka"
 )
 
 func main() {
 
 	res := toloka.NewResponseData()
 
-	metrics.GetColored(res)
+	metrics.GetAUC(metrics.GetColored(res))
 
 	//cmd := exec.Command("python", "-m", "test.color_build_data", "--userinput", "Elvis")
 	//cmd.Dir = "C:/Users/misha/chatgpt-research"

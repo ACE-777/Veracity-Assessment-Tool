@@ -10,7 +10,14 @@ import (
 	"strconv"
 	"sync"
 
-	"toloka-metrics/internal/toloka"
+	toloka "toloka-metrics/internal/toloka"
+)
+
+const (
+	TP = "TP"
+	FP = "FP"
+	TN = "TN"
+	FN = "FN"
 )
 
 type ColoredData struct {
@@ -22,11 +29,15 @@ type ColoredData struct {
 	Labels   []string
 }
 
-func GetColored(res map[toloka.ResponseData][]toloka.Sentence) {
+func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []string) {
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, 4)
+	var mu sync.Mutex
+	var mu2 sync.Mutex
+	sem := make(chan struct{}, 5)
 
-	var coloredDataResult []ColoredData
+	var attitudeMetric []float64
+	var labelsFromSentences []string
+	var iterator = 0
 
 	for k, v := range res {
 		k := k
@@ -39,26 +50,31 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) {
 			defer func() {
 				wg.Done()
 				<-sem
+				fmt.Println("iterator::", iterator)
+				iterator++
 			}()
-			//fmt.Println(k, v)
+
 			labels := make([]string, len(v))
-			userinput := ""
+			userInput := ""
+			mu.Lock()
 			for sentenceNumber, sentence := range v {
-				userinput += sentence.Text
-				userinput += ". "
+				userInput += sentence.Text
+				userInput += ". "
+				labelsFromSentences = append(labelsFromSentences, sentence.Label)
 				labels[sentenceNumber] = sentence.Label
 			}
+
+			defer mu.Unlock()
 
 			cmd := exec.Command(
 				"python",
 				"-m",
 				"test.color_build_data",
-				"--userinput", userinput,
+				"--userinput", userInput,
 				"--file", k.File,
 				"--question", strconv.Itoa(int(k.Question)),
 				"--answer", strconv.Itoa(int(k.Answer)),
 			)
-
 			cmd.Dir = "C:/Users/misha/chatgpt-research"
 
 			stdin, err := cmd.StdinPipe()
@@ -66,10 +82,10 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) {
 				log.Println("Can't execute python script")
 				log.Println(err)
 			}
+
 			defer stdin.Close()
 
 			var output bytes.Buffer
-
 			cmd.Stdout = &output
 			cmd.Stderr = os.Stderr
 			if err = cmd.Start(); err != nil {
@@ -87,13 +103,90 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) {
 			}
 
 			coloredData.Labels = labels
-			coloredDataResult = append(coloredDataResult, coloredData)
+			mu2.Lock()
+			for i, coloredCount := range coloredData.Colored {
+				attitudeMetric = append(attitudeMetric, float64(coloredCount)/float64(coloredData.Length[i]))
+			}
 
+			defer mu2.Unlock()
 		}()
-		break
+		//break
 	}
 
 	wg.Wait()
-	fmt.Println(coloredDataResult)
 
+	log.Println("end collecting coloring data for auc metric")
+	return attitudeMetric, labelsFromSentences
+}
+
+type ROC struct {
+	TPR      float64
+	FPR      float64
+	Treshold float64
+}
+
+func GetAUC(attitudeMetric []float64, labelsFromSentences []string) {
+	var roc = make(map[int]ROC, 100)
+
+	tresholds := 0
+	for threshold := 0.0; threshold <= 1.0; threshold += 0.01 {
+		auc := map[string]int{
+			TP: 0,
+			FP: 0,
+			TN: 0,
+			FN: 0,
+		}
+
+		for numberLabel, attitude := range attitudeMetric {
+			if attitude > threshold && labelsFromSentences[numberLabel] == toloka.True {
+				auc[TP]++
+			}
+
+			if attitude > threshold && labelsFromSentences[numberLabel] == toloka.False {
+				auc[FP]++
+			}
+
+			if attitude <= threshold && labelsFromSentences[numberLabel] == toloka.False {
+				auc[TN]++
+			}
+
+			if attitude <= threshold && labelsFromSentences[numberLabel] == toloka.True {
+				auc[FN]++
+			}
+		}
+
+		currentTPR := calculateTPR(auc)
+		currentFPR := calculateFPR(auc)
+
+		currentROC := ROC{
+			TPR:      currentTPR,
+			FPR:      currentFPR,
+			Treshold: threshold,
+		}
+
+		roc[tresholds] = currentROC
+		tresholds++
+	}
+
+	for x := 0; x < 101; x++ {
+		fmt.Println(roc[x])
+	}
+
+	log.Println("end building data for auc metric")
+}
+
+func calculateFPR(auc map[string]int) float64 {
+	if auc[FP]+auc[TN] == 0 {
+		return 0.0
+	}
+
+	return float64(auc[FP]) / float64(auc[FP]+auc[TN])
+}
+
+func calculateTPR(auc map[string]int) float64 {
+	if auc[TP]+auc[FN] == 0 {
+		return 0.0
+	}
+
+	return float64(auc[TP]) / float64(auc[TP]+auc[FN])
 }
