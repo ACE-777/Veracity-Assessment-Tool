@@ -28,6 +28,7 @@ const (
 	flag = false
 
 	uniqColor = 5
+	//pythonScript = "test.new"
 )
 
 type ColoredData struct {
@@ -122,7 +123,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			if err != nil {
 				log.Println(err)
 			}
-
+			fmt.Println(output.String())
 			var coloredData ColoredData
 			if err = json.Unmarshal(output.Bytes(), &coloredData); err != nil {
 				log.Printf("Can't convert bytes to json struct coloredData %v", err)
@@ -143,7 +144,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			saveMetaDataPerEachIteration(currentResultDir, iterator, coloredData)
 		}()
 
-		break
+		//break
 	}
 
 	wg.Wait()
@@ -175,11 +176,11 @@ func GetAUC(attitudeMetric []float64, labelsFromSentences []string) {
 				auc[TP]++
 			}
 
-			if attitude > threshold && labelsFromSentences[numberLabel] == toloka.False {
+			if attitude > threshold && labelsFromSentences[numberLabel] != toloka.True {
 				auc[FP]++
 			}
 
-			if attitude <= threshold && labelsFromSentences[numberLabel] == toloka.False {
+			if attitude <= threshold && labelsFromSentences[numberLabel] != toloka.True {
 				auc[TN]++
 			}
 
