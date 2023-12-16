@@ -123,7 +123,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			if err != nil {
 				log.Println(err)
 			}
-			fmt.Println(output.String())
+
 			var coloredData ColoredData
 			if err = json.Unmarshal(output.Bytes(), &coloredData); err != nil {
 				log.Printf("Can't convert bytes to json struct coloredData %v", err)
