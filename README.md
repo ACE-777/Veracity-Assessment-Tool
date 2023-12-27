@@ -7,9 +7,9 @@ and usage conda. Then reboot computer.
 ## Versions of coloring
 branches:
 - dev/colored/v1/1 - coloring first version
-- dev/colored/v2/1 - coloring second version with new approache on chains n-gramm
+- dev/colored/v2/1 - coloring second version with new approache without skipping
 
 soon...:
 - dev/colored/v1/2 - coloring with lucine
-- dev/colored/v2/2 - coloring with 3-gramm
+- dev/colored/v2/2 - coloring with skiping 3 tokens 
 - dev/colored/v2/3 - coloring with colBert  
