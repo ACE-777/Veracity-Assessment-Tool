@@ -14,6 +14,9 @@ import (
 )
 
 const (
+	pythonScript = "test.color_build_data"
+	repoDir      = "C:/Users/misha/pythonProject/chatgpt-research"
+
 	TP = "TP"
 	FP = "FP"
 	TN = "TN"
@@ -69,13 +72,13 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			cmd := exec.Command(
 				"python",
 				"-m",
-				"test.color_build_data",
+				pythonScript,
 				"--userinput", userInput,
 				"--file", k.File,
 				"--question", strconv.Itoa(int(k.Question)),
 				"--answer", strconv.Itoa(int(k.Answer)),
 			)
-			cmd.Dir = "C:/Users/misha/chatgpt-research"
+			cmd.Dir = repoDir
 
 			stdin, err := cmd.StdinPipe()
 			if err != nil {
@@ -110,7 +113,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 			defer mu2.Unlock()
 		}()
-		//break
+		break
 	}
 
 	wg.Wait()
