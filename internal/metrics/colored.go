@@ -113,7 +113,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 			defer mu2.Unlock()
 		}()
-		break
+		//break
 	}
 
 	wg.Wait()
