@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 	"sync"
+	"time"
 
 	toloka "toloka-metrics/internal/toloka"
 )
@@ -30,6 +33,7 @@ type ColoredData struct {
 	Length   []int  `json:"length"`
 	Colored  []int  `json:"colored"`
 	Labels   []string
+	HTML     string `json:"html"`
 }
 
 func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []string) {
@@ -42,6 +46,20 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 	var labelsFromSentences []string
 	var iterator = 0
 
+	fileResultName := fmt.Sprintf(
+		"result_data_%v.%v",
+		time.Now().UTC().Add(time.Hour*3).Format("2006-01-02T15-04-05"),
+		"txt",
+	)
+	fileResultData, err := os.Create(fileResultName)
+	if err != nil {
+		log.Printf("can not create file for result data:%v", err)
+	}
+	currentResultDir := fmt.Sprintf("colored_%v", time.Now().UTC().Add(time.Hour*3).Format("2006-01-02T15-04-05"))
+	if err = os.Mkdir(currentResultDir, os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
+
 	for k, v := range res {
 		k := k
 		v := v
@@ -53,8 +71,9 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			defer func() {
 				wg.Done()
 				<-sem
-				fmt.Println("iterator::", iterator)
+				fmt.Println("iterator::", iterator, "/", len(res))
 				iterator++
+
 			}()
 
 			labels := make([]string, len(v))
@@ -68,7 +87,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			}
 
 			defer mu.Unlock()
-
+			//fmt.Println("otput:", userInput)
 			cmd := exec.Command(
 				"python",
 				"-m",
@@ -111,8 +130,29 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				attitudeMetric = append(attitudeMetric, float64(coloredCount)/float64(coloredData.Length[i]))
 			}
 
+			_, err = io.Copy(fileResultData, strings.NewReader(fmt.Sprintf("colored: %v \nlabels: %v \n\n", attitudeMetric, labelsFromSentences)))
+			if err != nil {
+				log.Printf("can not write to result data file %v", err)
+			}
+
+			resultColoredNameFile := fmt.Sprintf("%v\\%v",
+				currentResultDir,
+				fmt.Sprintf("colored_data_%v.%v", iterator, "html"),
+			)
+
+			ColoredResultInDir, err := os.Create(resultColoredNameFile)
+			if err != nil {
+				log.Printf("can not create dir for result data:%v", err)
+			}
+
+			_, err = io.Copy(ColoredResultInDir, strings.NewReader(coloredData.HTML))
+			if err != nil {
+				log.Printf("can not write to result colored data file %v", err)
+			}
+
 			defer mu2.Unlock()
 		}()
+
 		//break
 	}
 
