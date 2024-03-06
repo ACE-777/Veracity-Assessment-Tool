@@ -24,6 +24,8 @@ const (
 	FP = "FP"
 	TN = "TN"
 	FN = "FN"
+
+	flag = false
 )
 
 type ColoredData struct {
@@ -36,14 +38,14 @@ type ColoredData struct {
 	HTML     string `json:"html"`
 }
 
+var attitudeMetric []float64
+var labelsFromSentences []string
+
 func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []string) {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	var mu2 sync.Mutex
-	sem := make(chan struct{}, 5)
+	sem := make(chan struct{}, 2)
 
-	var attitudeMetric []float64
-	var labelsFromSentences []string
 	var iterator = 0
 
 	fileResultName := fmt.Sprintf(
@@ -78,15 +80,12 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 			labels := make([]string, len(v))
 			userInput := ""
-			mu.Lock()
 			for sentenceNumber, sentence := range v {
 				userInput += sentence.Text
 				userInput += ". "
-				labelsFromSentences = append(labelsFromSentences, sentence.Label)
 				labels[sentenceNumber] = sentence.Label
 			}
 
-			defer mu.Unlock()
 			//fmt.Println("otput:", userInput)
 			cmd := exec.Command(
 				"python",
@@ -125,21 +124,12 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			}
 
 			coloredData.Labels = labels
-			mu2.Lock()
-			for i, coloredCount := range coloredData.Colored {
-				attitudeMetric = append(attitudeMetric, float64(coloredCount)/float64(coloredData.Length[i]))
-			}
-
-			_, err = io.Copy(fileResultData, strings.NewReader(fmt.Sprintf("colored: %v \nlabels: %v \n\n", attitudeMetric, labelsFromSentences)))
-			if err != nil {
-				log.Printf("can not write to result data file %v", err)
-			}
+			addAttitudeMetricAndWriteToSnapshotFileSafely(&mu, coloredData, fileResultData)
 
 			resultColoredNameFile := fmt.Sprintf("%v\\%v",
 				currentResultDir,
 				fmt.Sprintf("colored_data_%v.%v", iterator, "html"),
 			)
-
 			ColoredResultInDir, err := os.Create(resultColoredNameFile)
 			if err != nil {
 				log.Printf("can not create dir for result data:%v", err)
@@ -149,8 +139,6 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			if err != nil {
 				log.Printf("can not write to result colored data file %v", err)
 			}
-
-			defer mu2.Unlock()
 		}()
 
 		//break
@@ -232,4 +220,22 @@ func calculateTPR(auc map[string]int) float64 {
 	}
 
 	return float64(auc[TP]) / float64(auc[TP]+auc[FN])
+}
+
+func addAttitudeMetricAndWriteToSnapshotFileSafely(
+	mu *sync.Mutex, coloredData ColoredData, fileResultData *os.File,
+) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	for i, coloredCount := range coloredData.Colored {
+		attitudeMetric = append(attitudeMetric, float64(coloredCount)/float64(coloredData.Length[i]))
+	}
+
+	labelsFromSentences = append(labelsFromSentences, coloredData.Labels...)
+	_, err := io.Copy(fileResultData, strings.NewReader(fmt.Sprintf("colored: %v \nlabels: %v \n\n",
+		attitudeMetric, labelsFromSentences)))
+	if err != nil {
+		log.Printf("can not write to result data file %v", err)
+	}
 }
