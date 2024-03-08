@@ -26,16 +26,21 @@ const (
 	FN = "FN"
 
 	flag = false
+
+	uniqColor = 5
 )
 
 type ColoredData struct {
-	File     string `json:"file"`
-	Question string `json:"question"`
-	Answer   string `json:"answer"`
-	Length   []int  `json:"length"`
-	Colored  []int  `json:"colored"`
-	Labels   []string
-	HTML     string `json:"html"`
+	File           string      `json:"file"`
+	Question       string      `json:"question"`
+	Answer         string      `json:"answer"`
+	ResultSources  [][]string  `json:"result_sources"`
+	Tokens         []string    `json:"tokens"`
+	ResultDistance [][]float64 `json:"result_dists"`
+	Labels         []string
+	Length         []int
+	Colored        []int
+	HTML           string
 }
 
 var attitudeMetric []float64
@@ -124,6 +129,14 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			}
 
 			coloredData.Labels = labels
+			topLinksPerEachToken := getTopOneSource(coloredData)
+			arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
+
+			sentenceLenght, ColoredCount, HTML := buildPageTemplate(coloredData.Tokens, topLinksPerEachToken, arrayWithTopUniqColors)
+			coloredData.Length = sentenceLenght
+			coloredData.Colored = ColoredCount
+			coloredData.HTML = HTML
+
 			addAttitudeMetricAndWriteToSnapshotFileSafely(&mu, coloredData, fileResultData)
 
 			resultColoredNameFile := fmt.Sprintf("%v\\%v",
