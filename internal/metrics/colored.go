@@ -47,22 +47,22 @@ var attitudeMetric []float64
 var labelsFromSentences []string
 
 func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []string) {
-	var wg sync.WaitGroup
-	var mu sync.Mutex
+	var (
+		wg        sync.WaitGroup
+		mu        sync.Mutex
+		iterator  = 0
+		timestamp = time.Now().UTC().Add(time.Hour * 3).Format("2006-01-02T15-04-05")
+	)
+
 	sem := make(chan struct{}, 2)
 
-	var iterator = 0
-
-	fileResultName := fmt.Sprintf(
-		"result_data_%v.%v",
-		time.Now().UTC().Add(time.Hour*3).Format("2006-01-02T15-04-05"),
-		"txt",
-	)
+	fileResultName := fmt.Sprintf("result_data_%v.%v", timestamp, "txt")
 	fileResultData, err := os.Create(fileResultName)
 	if err != nil {
 		log.Printf("can not create file for result data:%v", err)
 	}
-	currentResultDir := fmt.Sprintf("colored_%v", time.Now().UTC().Add(time.Hour*3).Format("2006-01-02T15-04-05"))
+
+	currentResultDir := fmt.Sprintf("colored_%v", timestamp)
 	if err = os.Mkdir(currentResultDir, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
@@ -139,22 +139,11 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 			addAttitudeMetricAndWriteToSnapshotFileSafely(&mu, coloredData, fileResultData)
 
-			resultColoredNameFile := fmt.Sprintf("%v\\%v",
-				currentResultDir,
-				fmt.Sprintf("colored_data_%v.%v", iterator, "html"),
-			)
-			ColoredResultInDir, err := os.Create(resultColoredNameFile)
-			if err != nil {
-				log.Printf("can not create dir for result data:%v", err)
-			}
-
-			_, err = io.Copy(ColoredResultInDir, strings.NewReader(coloredData.HTML))
-			if err != nil {
-				log.Printf("can not write to result colored data file %v", err)
-			}
+			saveColoredDataPerEachIteration(currentResultDir, iterator, coloredData)
+			saveMetaDataPerEachIteration(currentResultDir, iterator, coloredData)
 		}()
 
-		//break
+		break
 	}
 
 	wg.Wait()
