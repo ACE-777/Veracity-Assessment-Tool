@@ -144,7 +144,11 @@ var pageTemplate = `
 <head>
     <meta charset="UTF-8">
     <title>Result</title>
+<<<<<<< HEAD
     <link rel="stylesheet" type="text/css" href="../../internal/metrics/static/style_result.css">
+=======
+    <link rel="stylesheet" type="text/css" href="../cmd/static/style_result.css">
+>>>>>>> 07b4ea6 (implementing sockets after json and proto attempts)
 </head>
 <body>
 <h1>Result of research</h1>
@@ -154,9 +158,12 @@ var pageTemplate = `
 {{ list_of_colors }}
 <pre><b>Result:</b></pre>
 {{ result }}
+<<<<<<< HEAD
 <br>
 <br>
 <pre><b>Colored percentage: {{ coloredCount }}</b></pre>
+=======
+>>>>>>> 07b4ea6 (implementing sockets after json and proto attempts)
 </body>
 </html>
 `

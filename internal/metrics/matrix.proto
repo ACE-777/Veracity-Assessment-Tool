@@ -1,0 +1,10 @@
+syntax = "proto3";
+option go_package = "/";
+
+message MatrixMessage {
+  repeated float row = 1;
+}
+
+message MatrixMessages {
+  repeated MatrixMessage matrix_messages = 1;
+}

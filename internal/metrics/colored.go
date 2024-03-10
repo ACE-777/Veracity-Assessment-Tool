@@ -2,10 +2,13 @@ package metrics
 
 import (
 	"bytes"
+	"encoding/binary"
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"os"
 	"os/exec"
 	"strconv"
@@ -42,6 +45,7 @@ type ColoredData struct {
 	Length         []int       //count of all tokens for each sentence
 	Colored        []int       //count of colored tokens for each sentence
 	HTML           string      //html output for input
+
 }
 
 var attitudeMetric []float64
@@ -55,7 +59,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 		timestamp = time.Now().UTC().Add(time.Hour * 3).Format("2006-01-02T15-04-05")
 	)
 
-	sem := make(chan struct{}, 2)
+	sem := make(chan struct{}, 1)
 
 	fileResultName := fmt.Sprintf("result_data_%v.%v", timestamp, "txt")
 	fileResultData, err := os.Create(fileResultName)
@@ -119,12 +123,16 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				log.Printf("error in starting python commnad: %v", err)
 			}
 
+			go ConnectToPythonServer()
+			fmt.Println("waiting bytes:")
+			fmt.Println("out::", string(output.Bytes()))
 			err = cmd.Wait()
 			if err != nil {
 				log.Println(err)
 			}
 
 			var coloredData ColoredData
+			fmt.Println("out2::", string(output.Bytes()))
 			if err = json.Unmarshal(output.Bytes(), &coloredData); err != nil {
 				log.Printf("Can't convert bytes to json struct coloredData %v", err)
 			}
@@ -151,6 +159,52 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 	log.Println("end collecting coloring data for auc metric")
 	return attitudeMetric, labelsFromSentences
+}
+
+func ConnectToPythonServer() {
+	var (
+		err error
+	)
+	for {
+		conn, err = net.Dial("tcp", serverAddr)
+		if err != nil {
+			log.Printf("Bad connection to server: %v", err)
+		} else {
+			break
+		}
+	}
+
+	log.Printf("connection established to server: %v", serverAddr)
+
+	var buf bytes.Buffer
+	buff := make([]byte, 1024)
+	for {
+		_, _ = conn.Read(buff)
+		var matrixx [][]float64
+		buf1 := bytes.NewReader(buff)
+		if err := binary.Read(buf1, binary.LittleEndian, &matrixx); err != nil {
+			fmt.Println("Ошибка при декодировании данных:", err)
+			break
+		}
+		fmt.Println("matrix:", matrixx)
+		_, err := buf.ReadFrom(conn)
+		fmt.Println("buff:", buf.String())
+		if err != nil {
+			log.Printf("Ошибка при чтении данных:", err)
+			return
+		}
+
+		var matrix [][]float64
+		dec := gob.NewDecoder(&buf)
+		err = dec.Decode(&matrix)
+		if err != nil {
+			log.Printf("Ошибка при декодировании данных:", err)
+			return
+		}
+
+		fmt.Println("Получена матрица от сервера:")
+		fmt.Println(matrix)
+	}
 }
 
 type ROC struct {
