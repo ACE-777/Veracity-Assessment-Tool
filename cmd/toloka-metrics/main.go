@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-
 	metrics "toloka-metrics/internal/metrics"
 	toloka "toloka-metrics/internal/toloka"
 	wiki "toloka-metrics/internal/wiki"

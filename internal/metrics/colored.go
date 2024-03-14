@@ -2,13 +2,10 @@ package metrics
 
 import (
 	"bytes"
-	"encoding/binary"
-	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
-	"net"
 	"os"
 	"os/exec"
 	"strconv"
@@ -29,10 +26,17 @@ const (
 	FN = "FN"
 
 	flag = false
+	//pythonScript = "test.new"
 
 	uniqColor = 5
 	//pythonScript = "test.new"
 )
+
+type Chain struct {
+	Likelihoods []float64 `json:"likelihoods"`
+	Positions   []int     `json:"positions"`
+	Source      string    `json:"source"`
+}
 
 type ColoredData struct {
 	File           string      `json:"file"`           //file name
@@ -40,16 +44,20 @@ type ColoredData struct {
 	Answer         string      `json:"answer"`         //answer number
 	ResultSources  [][]string  `json:"result_sources"` //sources with variants on each token
 	Tokens         []string    `json:"tokens"`         //all tokens from input text
-	ResultDistance [][]float64 `json:"result_dists"`   //cos dist result for each token with variants
+	TokensID       []string    `json:"tokens_ids"`
+	Probability    [][]float64 `json:"result_probs_for_each_token"`
+	Chains         []Chain     `json:"chains"`
+	ResultDistance [][]float64 `json:"result_dists"` //cos dist result for each token with variants
 	Labels         []string    //labels from algoritms for each sentence
 	Length         []int       //count of all tokens for each sentence
 	Colored        []int       //count of colored tokens for each sentence
-	HTML           string      //html output for input
-
+	HTML           string      `json:"html"` //html output for input
 }
 
-var attitudeMetric []float64
-var labelsFromSentences []string
+var (
+	attitudeMetric      []float64
+	labelsFromSentences []string
+)
 
 func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []string) {
 	var (
@@ -110,8 +118,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 			stdin, err := cmd.StdinPipe()
 			if err != nil {
-				log.Println("Can't execute python script")
-				log.Println(err)
+				log.Printf("Can't execute python script, err:%v", err)
 			}
 
 			defer stdin.Close()
@@ -123,7 +130,6 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				log.Printf("error in starting python commnad: %v", err)
 			}
 
-			go ConnectToPythonServer()
 			fmt.Println("waiting bytes:")
 			fmt.Println("out::", string(output.Bytes()))
 			err = cmd.Wait()
@@ -138,13 +144,13 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			}
 
 			coloredData.Labels = labels
-			topLinksPerEachToken := getTopOneSource(coloredData)
-			arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
-
-			sentenceLenght, ColoredCount, HTML := buildPageTemplate(coloredData.Tokens, topLinksPerEachToken, arrayWithTopUniqColors)
-			coloredData.Length = sentenceLenght
-			coloredData.Colored = ColoredCount
-			coloredData.HTML = HTML
+			//topLinksPerEachToken := getTopOneSource(coloredData)
+			//arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
+			//
+			//sentenceLenght, ColoredCount, HTML := buildPageTemplate(coloredData.Tokens, topLinksPerEachToken, arrayWithTopUniqColors)
+			//coloredData.Length = sentenceLenght
+			//coloredData.Colored = ColoredCount
+			//coloredData.HTML = HTML
 
 			addAttitudeMetricAndWriteToSnapshotFileSafely(&mu, coloredData, fileResultData)
 
@@ -159,52 +165,6 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 	log.Println("end collecting coloring data for auc metric")
 	return attitudeMetric, labelsFromSentences
-}
-
-func ConnectToPythonServer() {
-	var (
-		err error
-	)
-	for {
-		conn, err = net.Dial("tcp", serverAddr)
-		if err != nil {
-			log.Printf("Bad connection to server: %v", err)
-		} else {
-			break
-		}
-	}
-
-	log.Printf("connection established to server: %v", serverAddr)
-
-	var buf bytes.Buffer
-	buff := make([]byte, 1024)
-	for {
-		_, _ = conn.Read(buff)
-		var matrixx [][]float64
-		buf1 := bytes.NewReader(buff)
-		if err := binary.Read(buf1, binary.LittleEndian, &matrixx); err != nil {
-			fmt.Println("Ошибка при декодировании данных:", err)
-			break
-		}
-		fmt.Println("matrix:", matrixx)
-		_, err := buf.ReadFrom(conn)
-		fmt.Println("buff:", buf.String())
-		if err != nil {
-			log.Printf("Ошибка при чтении данных:", err)
-			return
-		}
-
-		var matrix [][]float64
-		dec := gob.NewDecoder(&buf)
-		err = dec.Decode(&matrix)
-		if err != nil {
-			log.Printf("Ошибка при декодировании данных:", err)
-			return
-		}
-
-		fmt.Println("Получена матрица от сервера:")
-		fmt.Println(matrix)
-	}
 }
 
 type ROC struct {

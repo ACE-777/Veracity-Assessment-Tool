@@ -67,7 +67,7 @@ func buildDictForColor(links []string, uniqColor int) map[string]string {
 func getTopOneSource(coloredData ColoredData) []string {
 	topSources := make([]string, len(coloredData.ResultSources))
 	for i, sourcesEachToken := range coloredData.ResultSources {
-		topSources[i] = sourcesEachToken[0]
+		topSources[i] = sourcesEachToken
 
 		if coloredData.ResultDistance[i][0] < treshold {
 			topSources[i] = ""
