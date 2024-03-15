@@ -30,6 +30,8 @@ const (
 
 	uniqColor = 5
 	//pythonScript = "test.new"
+	useSource    = "True"
+	notUseSource = "False"
 )
 
 type Chain struct {
@@ -86,12 +88,11 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 		wg.Add(1)
 		go func() {
-
+			log.Printf("iterator:%v/%v", iterator, len(res)-1)
 			sem <- struct{}{}
 			defer func() {
 				wg.Done()
 				<-sem
-				fmt.Println("iterator::", iterator, "/", len(res))
 				iterator++
 
 			}()
@@ -113,6 +114,9 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				"--file", k.File,
 				"--question", strconv.Itoa(int(k.Question)),
 				"--answer", strconv.Itoa(int(k.Answer)),
+				"--usesource", useSource,
+				"--sources", buildSourcesForOutput(v),
+				//"-use_source", notUseSource,
 			)
 			cmd.Dir = repoDir
 
@@ -130,8 +134,6 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				log.Printf("error in starting python commnad: %v", err)
 			}
 
-			fmt.Println("waiting bytes:")
-			fmt.Println("out::", string(output.Bytes()))
 			err = cmd.Wait()
 			if err != nil {
 				log.Println(err)

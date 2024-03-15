@@ -25,6 +25,11 @@ func ScrapeDataFromWikiArticles() {
 		log.Println(err)
 	}
 
+	err = cmd.Wait()
+	if err != nil {
+		log.Println(err)
+	}
+
 	log.Printf("End scrapping data from Wiki articles")
 	defer stdin.Close()
 }
