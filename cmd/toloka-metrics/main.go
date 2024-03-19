@@ -13,6 +13,12 @@ func main() {
 
 	// parse labeled data from toloka or other source. Then aggregate it and make unique data for each sentence.
 	res := toloka.NewResponseData()
+	//for k, v := range res {
+	//
+	//	fmt.Println("resss:key", k)
+	//	fmt.Println("value:", v)
+	//	fmt.Println(" ")
+	//}
 
 	if *scrapeWiki {
 		//scrape wiki articles that are in config file

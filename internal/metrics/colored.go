@@ -32,28 +32,35 @@ const (
 	//pythonScript = "test.new"
 	useSource    = "True"
 	notUseSource = "False"
+	useSkips     = "True"
+	notUseSkips  = "False"
 )
 
 type Chain struct {
 	Likelihoods []float64 `json:"likelihoods"`
 	Positions   []int     `json:"positions"`
 	Source      string    `json:"source"`
+	Skip        int       `json:"skip"`
 }
 
 type ColoredData struct {
-	File           string      `json:"file"`           //file name
-	Question       string      `json:"question"`       //question number
-	Answer         string      `json:"answer"`         //answer number
-	ResultSources  [][]string  `json:"result_sources"` //sources with variants on each token
-	Tokens         []string    `json:"tokens"`         //all tokens from input text
-	TokensID       []string    `json:"tokens_ids"`
-	Probability    [][]float64 `json:"result_probs_for_each_token"`
-	Chains         []Chain     `json:"chains"`
-	ResultDistance [][]float64 `json:"result_dists"` //cos dist result for each token with variants
-	Labels         []string    //labels from algoritms for each sentence
-	Length         []int       //count of all tokens for each sentence
-	Colored        []int       //count of colored tokens for each sentence
-	HTML           string      `json:"html"` //html output for input
+	LenTokens              int         `json:"lentokens"`
+	ColoredTokens          int         `json:"coloredtokens"`
+	PercentageColored      string      `json:"percentageColored"`
+	File                   string      `json:"file"`           //file name
+	Question               string      `json:"question"`       //question number
+	Answer                 string      `json:"answer"`         //answer number
+	ResultSources          [][]string  `json:"result_sources"` //sources with variants on each token
+	Tokens                 []string    `json:"tokens"`         //all tokens from input text
+	TokensID               []string    `json:"tokens_ids"`
+	Probability            [][]float64 `json:"result_probs_for_each_token"`
+	Chains                 string      `json:"chains"`
+	AllChainsBeforeSorting string      `json:"allchainsbeforesorting"`
+	ResultDistance         [][]float64 `json:"result_dists"` //cos dist result for each token with variants
+	Labels                 []string    //labels from algoritms for each sentence
+	Length                 []int       //count of all tokens for each sentence
+	Colored                []int       //count of colored tokens for each sentence
+	HTML                   string      `json:"html"` //html output for input
 }
 
 var (
@@ -88,13 +95,13 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 		wg.Add(1)
 		go func() {
-			log.Printf("iterator:%v/%v", iterator, len(res)-1)
+
 			sem <- struct{}{}
 			defer func() {
 				wg.Done()
 				<-sem
 				iterator++
-
+				log.Printf("iterator:%v/%v", iterator, len(res)-1)
 			}()
 
 			labels := make([]string, len(v))
@@ -114,8 +121,9 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				"--file", k.File,
 				"--question", strconv.Itoa(int(k.Question)),
 				"--answer", strconv.Itoa(int(k.Answer)),
-				"--usesource", useSource,
+				"--usesource", notUseSource,
 				"--sources", buildSourcesForOutput(v),
+				"--withskip", notUseSkips,
 				//"-use_source", notUseSource,
 			)
 			cmd.Dir = repoDir
@@ -151,7 +159,13 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				return
 			}
 
+			if err = json.Unmarshal([]byte(coloredData.AllChainsBeforeSorting), &chains); err != nil {
+				fmt.Println("Ошибка декодирования JSON:", err)
+				return
+			}
+
 			coloredData.Labels = labels
+			coloredData.PercentageColored = fmt.Sprintf("\n%v\n", (float64(coloredData.ColoredTokens) / float64(coloredData.LenTokens)))
 			//topLinksPerEachToken := getTopOneSource(coloredData)
 			//arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
 			//
