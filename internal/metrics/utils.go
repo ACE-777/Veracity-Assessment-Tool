@@ -18,7 +18,7 @@ func saveMetaDataPerEachIteration(currentResultDir string, iterator int, colored
 	if err != nil {
 		log.Printf("can not create dir for result data:%v", err)
 	}
-	metaInfo, err := json.Marshal(coloredData)
+	metaInfo, err := json.MarshalIndent(coloredData, "", "  ")
 	if err != nil {
 		log.Printf("can not unmarshall meta info at iteration %v, err: %v", iterator, err)
 	}

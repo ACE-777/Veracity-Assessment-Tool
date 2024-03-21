@@ -38,7 +38,7 @@ func NewResponseData() map[ResponseData][]Sentence {
 			break
 		}
 
-		if strings.Contains(row[5], "INPUT") {
+		if strings.Contains(row[5], "INPUT") || strings.Contains(row[10], "TASK:assignments_count") {
 			continue
 		}
 

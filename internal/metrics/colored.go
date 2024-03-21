@@ -31,16 +31,16 @@ const (
 )
 
 type ColoredData struct {
-	File           string      `json:"file"`
-	Question       string      `json:"question"`
-	Answer         string      `json:"answer"`
-	ResultSources  [][]string  `json:"result_sources"`
-	Tokens         []string    `json:"tokens"`
-	ResultDistance [][]float64 `json:"result_dists"`
-	Labels         []string
-	Length         []int
-	Colored        []int
-	HTML           string
+	File           string      `json:"file"`           //file name
+	Question       string      `json:"question"`       //question number
+	Answer         string      `json:"answer"`         //answer number
+	ResultSources  [][]string  `json:"result_sources"` //sources with variants on each token
+	Tokens         []string    `json:"tokens"`         //all tokens from input text
+	ResultDistance [][]float64 `json:"result_dists"`   //cos dist result for each token with variants
+	Labels         []string    //labels from algoritms for each sentence
+	Length         []int       //count of all tokens for each sentence
+	Colored        []int       //count of colored tokens for each sentence
+	HTML           string      //html output for input
 }
 
 var attitudeMetric []float64

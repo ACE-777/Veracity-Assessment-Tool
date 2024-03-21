@@ -3,6 +3,7 @@ package metrics
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -153,6 +154,9 @@ var pageTemplate = `
 {{ list_of_colors }}
 <pre><b>Result:</b></pre>
 {{ result }}
+<br>
+<br>
+Colored percentage: <b>{{ coloredCount }}</b>
 </body>
 </html>
 `
@@ -163,6 +167,8 @@ func buildPageTemplate(tokens []string, topLinksPerEachToken []string, linksWith
 	resultOfListOfColors := listOfColors(linksWithUniqColors)
 	template = strings.ReplaceAll(template, "{{ list_of_colors }}", resultOfListOfColors)
 	template = strings.ReplaceAll(template, "{{ result }}", resultOfColor)
+	template = strings.ReplaceAll(template, "{{ coloredCount }}",
+		strconv.FormatFloat(float64(wholeCountOfColoredTokens(countColoredTokenInSentenceArray))/float64(len(tokens)), 'g', 2, 64))
 
 	return sentenceLengthArray, countColoredTokenInSentenceArray, template
 }
@@ -172,6 +178,14 @@ func removeSpecialSymbolsFromToken(tokens []string) (modifyTokens []string) {
 		token = strings.ReplaceAll(token, "Ġ", " ")
 		token = strings.ReplaceAll(token, "Ċ", "</br>")
 		modifyTokens = append(modifyTokens, token)
+	}
+
+	return
+}
+
+func wholeCountOfColoredTokens(countColoredTokenInSentenceArray []int) (countOfColors int) {
+	for _, i := range countColoredTokenInSentenceArray {
+		countOfColors += i
 	}
 
 	return
