@@ -17,9 +17,9 @@ import (
 )
 
 const (
-	pythonScript = "test.color_build_data"
-	//pythonScript = "test.example"
-	repoDir = "C:/Users/misha/pythonProject/chatgpt-research"
+	//pythonScript = "test.color_build_data"
+	pythonScript = "test.example"
+	repoDir      = "C:/Users/misha/pythonProject/chatgpt-research"
 
 	TP = "TP"
 	FP = "FP"
@@ -53,8 +53,8 @@ type ColoredData struct {
 	Tokens                 []string    `json:"tokens"`                      //all tokens from input text
 	TokensID               []string    `json:"tokens_ids"`                  //token's id from dictionary LLM model
 	Probability            [][]float64 `json:"result_probs_for_each_token"` //probability matrix for each token
-	Chains                 string      `json:"chains"`                      //chains
-	AllChainsBeforeSorting string      `json:"allchainsbeforesorting"`      //all sequence of chains
+	AllChainsAfterSorting  string      `json:"chains"`                      //all sequence of chains after applying the algorithm for sorting and screening out applicants
+	AllChainsBeforeSorting string      `json:"allchainsbeforesorting"`      //all sequence of chains before sorting
 	ResultDistance         [][]float64 `json:"result_dists"`                //cos dist result for each token with variants
 	Labels                 []string    //labels from algoritms for each sentence
 	Length                 []int       //count of all tokens for each sentence
@@ -153,7 +153,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			}
 
 			if pythonScript == "test.example" {
-				if err = json.Unmarshal([]byte(coloredData.Chains), &chains); err != nil {
+				if err = json.Unmarshal([]byte(coloredData.AllChainsAfterSorting), &chains); err != nil {
 					fmt.Println("Ошибка декодирования 1 JSON:", err)
 					return
 				}
