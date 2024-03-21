@@ -31,6 +31,7 @@ type ResultLabelsTable struct {
 	nonsense  uint
 }
 
+// label win that takes part more than another labels, in bad case noData return for sentence
 func (r *ResultLabelsTable) resultLabel() string {
 	total := r.true + r.false + r.cannotSay + r.nonsense
 	maxCount, maxLabel := r.maxLabel()

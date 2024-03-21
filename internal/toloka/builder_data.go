@@ -22,7 +22,7 @@ type Sentence struct {
 }
 
 func NewResponseData() map[ResponseData][]Sentence {
-	f, err := os.Open("internal/toloka/tasks_from_pool_06-12-2023.tsv")
+	f, err := os.Open("internal/toloka/tasks_ready_sources.tsv")
 	if err != nil {
 		log.Printf("error while opening file: %v", err)
 	}
@@ -38,7 +38,7 @@ func NewResponseData() map[ResponseData][]Sentence {
 			break
 		}
 
-		if strings.Contains(row[5], "INPUT") {
+		if strings.Contains(row[5], "INPUT") || strings.Contains(row[10], "TASK:assignments_count") {
 			continue
 		}
 
