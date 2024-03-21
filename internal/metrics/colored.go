@@ -18,7 +18,8 @@ import (
 
 const (
 	pythonScript = "test.color_build_data"
-	repoDir      = "C:/Users/misha/pythonProject/chatgpt-research"
+	//pythonScript = "test.new"
+	repoDir = "C:/Users/misha/pythonProject/chatgpt-research"
 
 	TP = "TP"
 	FP = "FP"
@@ -26,10 +27,8 @@ const (
 	FN = "FN"
 
 	flag = false
-	//pythonScript = "test.new"
 
-	uniqColor = 5
-	//pythonScript = "test.new"
+	uniqColor    = 5
 	useSource    = "True"
 	notUseSource = "False"
 	useSkips     = "True"
@@ -166,13 +165,15 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 			coloredData.Labels = labels
 			coloredData.PercentageColored = fmt.Sprintf("\n%v\n", (float64(coloredData.ColoredTokens) / float64(coloredData.LenTokens)))
-			//topLinksPerEachToken := getTopOneSource(coloredData)
-			//arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
-			//
-			//sentenceLenght, ColoredCount, HTML := buildPageTemplate(coloredData.Tokens, topLinksPerEachToken, arrayWithTopUniqColors)
-			//coloredData.Length = sentenceLenght
-			//coloredData.Colored = ColoredCount
-			//coloredData.HTML = HTML
+			if pythonScript == "test.color_build_data" {
+				topLinksPerEachToken := getTopOneSource(coloredData)
+				arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
+
+				sentenceLenght, ColoredCount, HTML := buildPageTemplate(coloredData.Tokens, topLinksPerEachToken, arrayWithTopUniqColors)
+				coloredData.Length = sentenceLenght
+				coloredData.Colored = ColoredCount
+				coloredData.HTML = HTML
+			}
 
 			addAttitudeMetricAndWriteToSnapshotFileSafely(&mu, coloredData, fileResultData)
 
