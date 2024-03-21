@@ -18,7 +18,7 @@ import (
 
 const (
 	pythonScript = "test.color_build_data"
-	//pythonScript = "test.new"
+	//pythonScript = "test.example"
 	repoDir = "C:/Users/misha/pythonProject/chatgpt-research"
 
 	TP = "TP"
@@ -123,7 +123,6 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				"--usesource", notUseSource,
 				"--sources", buildSourcesForOutput(v),
 				"--withskip", notUseSkips,
-				//"-use_source", notUseSource,
 			)
 			cmd.Dir = repoDir
 
@@ -153,14 +152,16 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				log.Printf("Can't convert bytes to json struct coloredData %v", err)
 			}
 
-			if err = json.Unmarshal([]byte(coloredData.Chains), &chains); err != nil {
-				fmt.Println("Ошибка декодирования JSON:", err)
-				return
-			}
+			if pythonScript == "test.example" {
+				if err = json.Unmarshal([]byte(coloredData.Chains), &chains); err != nil {
+					fmt.Println("Ошибка декодирования 1 JSON:", err)
+					return
+				}
 
-			if err = json.Unmarshal([]byte(coloredData.AllChainsBeforeSorting), &chains); err != nil {
-				fmt.Println("Ошибка декодирования JSON:", err)
-				return
+				if err = json.Unmarshal([]byte(coloredData.AllChainsBeforeSorting), &chains); err != nil {
+					fmt.Println("Ошибка декодирования JSON:", err)
+					//return
+				}
 			}
 
 			coloredData.Labels = labels
@@ -181,7 +182,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			saveMetaDataPerEachIteration(currentResultDir, iterator, coloredData)
 		}()
 
-		//break
+		break
 	}
 
 	wg.Wait()
