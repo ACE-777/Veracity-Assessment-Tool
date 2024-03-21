@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	//pythonScript = "test.color_build_data"
-	pythonScript = "test.example"
+	//pythonScript = "scripts.color_build_data"
+	pythonScript = "scripts.example"
 	repoDir      = "C:/Users/misha/pythonProject/chatgpt-research"
 
 	TP = "TP"
@@ -31,8 +31,8 @@ const (
 	uniqColor    = 5
 	useSource    = "True"
 	notUseSource = "False"
-	useSkips     = "True"
-	notUseSkips  = "False"
+	useSkips     = "True"  //colored/v2/2
+	notUseSkips  = "False" //colored/v2/1
 )
 
 type Chain struct {
@@ -152,7 +152,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				log.Printf("Can't convert bytes to json struct coloredData %v", err)
 			}
 
-			if pythonScript == "test.example" {
+			if pythonScript == "scripts.example" {
 				if err = json.Unmarshal([]byte(coloredData.AllChainsAfterSorting), &chains); err != nil {
 					fmt.Println("Ошибка декодирования 1 JSON:", err)
 					return
@@ -166,7 +166,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 			coloredData.Labels = labels
 			coloredData.PercentageColored = fmt.Sprintf("\n%v\n", (float64(coloredData.ColoredTokens) / float64(coloredData.LenTokens)))
-			if pythonScript == "test.color_build_data" {
+			if pythonScript == "scripts.color_build_data" {
 				topLinksPerEachToken := getTopOneSource(coloredData)
 				arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
 
