@@ -43,23 +43,23 @@ type Chain struct {
 }
 
 type ColoredData struct {
-	LenTokens              int         `json:"lentokens"`
-	ColoredTokens          int         `json:"coloredtokens"`
-	PercentageColored      string      `json:"percentageColored"`
-	File                   string      `json:"file"`           //file name
-	Question               string      `json:"question"`       //question number
-	Answer                 string      `json:"answer"`         //answer number
-	ResultSources          [][]string  `json:"result_sources"` //sources with variants on each token
-	Tokens                 []string    `json:"tokens"`         //all tokens from input text
-	TokensID               []string    `json:"tokens_ids"`
-	Probability            [][]float64 `json:"result_probs_for_each_token"`
-	Chains                 string      `json:"chains"`
-	AllChainsBeforeSorting string      `json:"allchainsbeforesorting"`
-	ResultDistance         [][]float64 `json:"result_dists"` //cos dist result for each token with variants
+	LenTokens              int         `json:"lentokens"`                   //whole count of tokens from input text
+	ColoredTokens          int         `json:"coloredtokens"`               //whole count of colored tokens from input text
+	PercentageColored      string      `json:"percentageColored"`           //percentage of colored token in whole input text
+	File                   string      `json:"file"`                        //file name
+	Question               string      `json:"question"`                    //question number
+	Answer                 string      `json:"answer"`                      //answer number
+	ResultSources          [][]string  `json:"result_sources"`              //sources with variants on each token
+	Tokens                 []string    `json:"tokens"`                      //all tokens from input text
+	TokensID               []string    `json:"tokens_ids"`                  //token's id from dictionary LLM model
+	Probability            [][]float64 `json:"result_probs_for_each_token"` //probability matrix for each token
+	Chains                 string      `json:"chains"`                      //chains
+	AllChainsBeforeSorting string      `json:"allchainsbeforesorting"`      //all sequence of chains
+	ResultDistance         [][]float64 `json:"result_dists"`                //cos dist result for each token with variants
 	Labels                 []string    //labels from algoritms for each sentence
 	Length                 []int       //count of all tokens for each sentence
 	Colored                []int       //count of colored tokens for each sentence
-	HTML                   string      `json:"html"` //html output for input
+	HTML                   string      `json:"html"` //html output for input text
 }
 
 var (
