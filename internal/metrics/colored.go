@@ -62,7 +62,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 		log.Printf("can not create file for result data:%v", err)
 	}
 
-	currentResultDir := fmt.Sprintf("colored_%v", timestamp)
+	currentResultDir := fmt.Sprintf("out/colored_%v", timestamp)
 	if err = os.Mkdir(currentResultDir, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}

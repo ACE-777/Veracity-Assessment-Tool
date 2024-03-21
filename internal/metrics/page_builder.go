@@ -144,7 +144,7 @@ var pageTemplate = `
 <head>
     <meta charset="UTF-8">
     <title>Result</title>
-    <link rel="stylesheet" type="text/css" href="../cmd/static/style_result.css">
+    <link rel="stylesheet" type="text/css" href="../../internal/metrics/static/style_result.css">
 </head>
 <body>
 <h1>Result of research</h1>
@@ -156,7 +156,7 @@ var pageTemplate = `
 {{ result }}
 <br>
 <br>
-Colored percentage: <b>{{ coloredCount }}</b>
+<pre><b>Colored percentage: {{ coloredCount }}</b></pre>
 </body>
 </html>
 `
