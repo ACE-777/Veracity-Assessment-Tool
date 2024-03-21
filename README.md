@@ -14,3 +14,6 @@ soon...:
 - dev/colored/v1/2 - coloring with lucine
 - dev/colored/v2/2 - coloring with skiping 3 tokens 
 - dev/colored/v2/3 - coloring with colBert  
+
+## To generate proto file
+protoc -I=. --go_out=. ./matrix.proto

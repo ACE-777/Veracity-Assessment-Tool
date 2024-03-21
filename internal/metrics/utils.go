@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"toloka-metrics/internal/toloka"
 )
 
 func saveMetaDataPerEachIteration(currentResultDir string, iterator int, coloredData ColoredData) {
@@ -43,4 +44,15 @@ func saveColoredDataPerEachIteration(currentResultDir string, iterator int, colo
 	if err != nil {
 		log.Printf("can not write to result colored data file %v", err)
 	}
+}
+
+func buildSourcesForOutput(sentences []toloka.Sentence) (sources string) {
+	for i, sentence := range sentences {
+		sources += sentence.Sources
+		if i != len(sentences)-1 {
+			sources += ","
+		}
+	}
+
+	return
 }

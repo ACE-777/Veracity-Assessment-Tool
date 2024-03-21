@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+const (
+	//taskFile = "internal/toloka/tasks_from_pool_06-12-2023.tsv"
+	taskFile = "internal/toloka/tasks_ready_sources.tsv"
+)
+
 type ResponseData struct {
 	File     string
 	Question uint
@@ -19,10 +24,11 @@ type Sentence struct {
 	Sentence uint
 	Text     string
 	Label    string
+	Sources  string
 }
 
 func NewResponseData() map[ResponseData][]Sentence {
-	f, err := os.Open("internal/toloka/tasks_ready_sources.tsv")
+	f, err := os.Open(taskFile)
 	if err != nil {
 		log.Printf("error while opening file: %v", err)
 	}
@@ -60,6 +66,7 @@ func NewResponseData() map[ResponseData][]Sentence {
 				Sentence: currentRowFromTask.sentence,
 				Text:     row[1],
 				Label:    label,
+				Sources:  row[10],
 			})
 
 			continue
@@ -69,6 +76,7 @@ func NewResponseData() map[ResponseData][]Sentence {
 			Sentence: currentRowFromTask.sentence,
 			Text:     row[1],
 			Label:    NoData,
+			Sources:  row[10],
 		})
 	}
 

@@ -26,25 +26,47 @@ const (
 	FN = "FN"
 
 	flag = false
+	//pythonScript = "test.new"
 
 	uniqColor = 5
+	//pythonScript = "test.new"
+	useSource    = "True"
+	notUseSource = "False"
+	useSkips     = "True"
+	notUseSkips  = "False"
 )
 
-type ColoredData struct {
-	File           string      `json:"file"`           //file name
-	Question       string      `json:"question"`       //question number
-	Answer         string      `json:"answer"`         //answer number
-	ResultSources  [][]string  `json:"result_sources"` //sources with variants on each token
-	Tokens         []string    `json:"tokens"`         //all tokens from input text
-	ResultDistance [][]float64 `json:"result_dists"`   //cos dist result for each token with variants
-	Labels         []string    //labels from algoritms for each sentence
-	Length         []int       //count of all tokens for each sentence
-	Colored        []int       //count of colored tokens for each sentence
-	HTML           string      //html output for input
+type Chain struct {
+	Likelihoods []float64 `json:"likelihoods"`
+	Positions   []int     `json:"positions"`
+	Source      string    `json:"source"`
+	Skip        int       `json:"skip"`
 }
 
-var attitudeMetric []float64
-var labelsFromSentences []string
+type ColoredData struct {
+	LenTokens              int         `json:"lentokens"`
+	ColoredTokens          int         `json:"coloredtokens"`
+	PercentageColored      string      `json:"percentageColored"`
+	File                   string      `json:"file"`           //file name
+	Question               string      `json:"question"`       //question number
+	Answer                 string      `json:"answer"`         //answer number
+	ResultSources          [][]string  `json:"result_sources"` //sources with variants on each token
+	Tokens                 []string    `json:"tokens"`         //all tokens from input text
+	TokensID               []string    `json:"tokens_ids"`
+	Probability            [][]float64 `json:"result_probs_for_each_token"`
+	Chains                 string      `json:"chains"`
+	AllChainsBeforeSorting string      `json:"allchainsbeforesorting"`
+	ResultDistance         [][]float64 `json:"result_dists"` //cos dist result for each token with variants
+	Labels                 []string    //labels from algoritms for each sentence
+	Length                 []int       //count of all tokens for each sentence
+	Colored                []int       //count of colored tokens for each sentence
+	HTML                   string      `json:"html"` //html output for input
+}
+
+var (
+	attitudeMetric      []float64
+	labelsFromSentences []string
+)
 
 func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []string) {
 	var (
@@ -54,7 +76,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 		timestamp = time.Now().UTC().Add(time.Hour * 3).Format("2006-01-02T15-04-05")
 	)
 
-	sem := make(chan struct{}, 2)
+	sem := make(chan struct{}, 1)
 
 	fileResultName := fmt.Sprintf("result_data_%v.%v", timestamp, "txt")
 	fileResultData, err := os.Create(fileResultName)
@@ -78,9 +100,8 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			defer func() {
 				wg.Done()
 				<-sem
-				fmt.Println("iterator::", iterator, "/", len(res))
 				iterator++
-
+				log.Printf("iterator:%v/%v", iterator, len(res)-1)
 			}()
 
 			labels := make([]string, len(v))
@@ -100,13 +121,16 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				"--file", k.File,
 				"--question", strconv.Itoa(int(k.Question)),
 				"--answer", strconv.Itoa(int(k.Answer)),
+				"--usesource", notUseSource,
+				"--sources", buildSourcesForOutput(v),
+				"--withskip", notUseSkips,
+				//"-use_source", notUseSource,
 			)
 			cmd.Dir = repoDir
 
 			stdin, err := cmd.StdinPipe()
 			if err != nil {
-				log.Println("Can't execute python script")
-				log.Println(err)
+				log.Printf("Can't execute python script, err:%v", err)
 			}
 
 			defer stdin.Close()
@@ -124,18 +148,31 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			}
 
 			var coloredData ColoredData
+			var chains []Chain
+			//fmt.Println("out2::", string(output.Bytes()))
 			if err = json.Unmarshal(output.Bytes(), &coloredData); err != nil {
 				log.Printf("Can't convert bytes to json struct coloredData %v", err)
 			}
 
-			coloredData.Labels = labels
-			topLinksPerEachToken := getTopOneSource(coloredData)
-			arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
+			if err = json.Unmarshal([]byte(coloredData.Chains), &chains); err != nil {
+				fmt.Println("Ошибка декодирования JSON:", err)
+				return
+			}
 
-			sentenceLenght, ColoredCount, HTML := buildPageTemplate(coloredData.Tokens, topLinksPerEachToken, arrayWithTopUniqColors)
-			coloredData.Length = sentenceLenght
-			coloredData.Colored = ColoredCount
-			coloredData.HTML = HTML
+			if err = json.Unmarshal([]byte(coloredData.AllChainsBeforeSorting), &chains); err != nil {
+				fmt.Println("Ошибка декодирования JSON:", err)
+				return
+			}
+
+			coloredData.Labels = labels
+			coloredData.PercentageColored = fmt.Sprintf("\n%v\n", (float64(coloredData.ColoredTokens) / float64(coloredData.LenTokens)))
+			//topLinksPerEachToken := getTopOneSource(coloredData)
+			//arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
+			//
+			//sentenceLenght, ColoredCount, HTML := buildPageTemplate(coloredData.Tokens, topLinksPerEachToken, arrayWithTopUniqColors)
+			//coloredData.Length = sentenceLenght
+			//coloredData.Colored = ColoredCount
+			//coloredData.HTML = HTML
 
 			addAttitudeMetricAndWriteToSnapshotFileSafely(&mu, coloredData, fileResultData)
 
@@ -143,7 +180,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			saveMetaDataPerEachIteration(currentResultDir, iterator, coloredData)
 		}()
 
-		break
+		//break
 	}
 
 	wg.Wait()
@@ -175,11 +212,11 @@ func GetAUC(attitudeMetric []float64, labelsFromSentences []string) {
 				auc[TP]++
 			}
 
-			if attitude > threshold && labelsFromSentences[numberLabel] == toloka.False {
+			if attitude > threshold && labelsFromSentences[numberLabel] != toloka.True {
 				auc[FP]++
 			}
 
-			if attitude <= threshold && labelsFromSentences[numberLabel] == toloka.False {
+			if attitude <= threshold && labelsFromSentences[numberLabel] != toloka.True {
 				auc[TN]++
 			}
 
