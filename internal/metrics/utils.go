@@ -63,21 +63,22 @@ func getSourceForTestyTasks(sentences []toloka.Sentence, coloredData ColoredData
 		source = sentence.Sources
 		fmt.Println("source:::", source)
 
-		break
-	}
+		positionVariants := make(map[int]int, len(coloredData.ResultSources[0]))
 
-	positionVariants := make(map[int]int, len(coloredData.ResultSources[0]))
-
-	for _, resultSources := range coloredData.ResultSources {
-		for j, resultSource := range resultSources {
-			if strings.Contains(resultSource, source) {
-				positionVariants[j] += 1
+		for _, resultSources := range coloredData.ResultSources {
+			for j, resultSource := range resultSources {
+				if strings.Contains(resultSource, source) {
+					positionVariants[j] += 1
+				}
 			}
+
 		}
 
+		for key, value := range positionVariants {
+			fmt.Println("key:", key, "value:", value, "/", len(coloredData.Tokens), "res:", float64(value)/float64(len(coloredData.Tokens)))
+		}
+
+		fmt.Println("\n")
 	}
 
-	for key, value := range positionVariants {
-		fmt.Println("key:", key, "value:", value, "/", len(coloredData.Tokens), "res:", float64(value)/float64(len(coloredData.Tokens)))
-	}
 }

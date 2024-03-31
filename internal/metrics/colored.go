@@ -100,7 +100,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				wg.Done()
 				<-sem
 				iterator++
-				log.Printf("iterator:%v/%v", iterator, len(res)-1)
+				log.Printf("iterator:%v/%v", iterator, len(res))
 			}()
 
 			labels := make([]string, len(v))
@@ -176,6 +176,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				coloredData.HTML = HTML
 			}
 
+			getSourceForTestyTasks(v, coloredData)
 			addAttitudeMetricAndWriteToSnapshotFileSafely(&mu, coloredData, fileResultData)
 
 			saveColoredDataPerEachIteration(currentResultDir, iterator, coloredData)
