@@ -57,9 +57,9 @@ type ColoredData struct {
 	AllChainsBeforeSorting string      `json:"allchainsbeforesorting"`      //all sequence of chains before sorting
 	ResultDistance         [][]float64 `json:"result_dists"`                //cos dist result for each token with variants
 	Labels                 []string    //labels from algoritms for each sentence
-	Length                 []int       //count of all tokens for each sentence
-	Colored                []int       //count of colored tokens for each sentence
-	HTML                   string      `json:"html"` //html output for input text
+	Length                 []int       `json:"length"`  //count of all tokens for each sentence
+	Colored                []int       `json:"colored"` //count of colored tokens for each sentence
+	HTML                   string      `json:"html"`    //html output for input text
 }
 
 var (
@@ -107,7 +107,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			userInput := ""
 			for sentenceNumber, sentence := range v {
 				userInput += sentence.Text
-				userInput += ". "
+				userInput += "."
 				labels[sentenceNumber] = sentence.Label
 			}
 
@@ -122,7 +122,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				"--answer", strconv.Itoa(int(k.Answer)),
 				"--usesource", notUseSource,
 				"--sources", buildSourcesForOutput(v),
-				"--withskip", notUseSkips,
+				"--withskip", useSkips,
 			)
 			cmd.Dir = repoDir
 
