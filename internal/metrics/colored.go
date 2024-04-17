@@ -215,11 +215,11 @@ func GetAUC(attitudeMetric []float64, labelsFromSentences []string) {
 				auc[TP]++
 			}
 
-			if attitude > threshold && labelsFromSentences[numberLabel] != toloka.True {
+			if attitude > threshold && labelsFromSentences[numberLabel] == toloka.False {
 				auc[FP]++
 			}
 
-			if attitude <= threshold && labelsFromSentences[numberLabel] != toloka.True {
+			if attitude <= threshold && labelsFromSentences[numberLabel] == toloka.False {
 				auc[TN]++
 			}
 

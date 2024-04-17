@@ -15,6 +15,8 @@ const (
 	CannotSay = "Cannot say"
 	Nonsense  = "Nonsense"
 	NoData    = "NoData"
+
+	resultFile = "internal/toloka/results_from_pool_06-12-2023.tsv"
 )
 
 type ResultData struct {
@@ -65,7 +67,7 @@ func (r *ResultLabelsTable) maxLabel() (maxCount uint, maxLabel string) {
 }
 
 func newResultData() map[ResultData]string {
-	f, err := os.Open("internal/toloka/results_from_pool_06-12-2023.tsv")
+	f, err := os.Open(resultFile)
 	if err != nil {
 		log.Printf("error while opening file: %v", err)
 	}
