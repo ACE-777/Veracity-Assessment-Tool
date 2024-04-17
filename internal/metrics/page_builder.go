@@ -91,7 +91,7 @@ func buildLinkTemplate(tokens []string, sourceLink []string, linksWithUniqColors
 		src := sourceLink[i]
 		flag := false
 
-		if key == "." {
+		if strings.HasSuffix(key, ".") {
 			sentenceLengthArray = append(sentenceLengthArray, sentenceLength)
 			countColoredTokenInSentenceArray = append(countColoredTokenInSentenceArray, countColoredTokenInSentence)
 			sentenceLength = 0
