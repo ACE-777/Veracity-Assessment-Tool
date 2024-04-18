@@ -69,3 +69,14 @@ body {
 .head{
     margin-bottom: 10px;
 }
+
+.toper {
+    background-color: #330099;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
