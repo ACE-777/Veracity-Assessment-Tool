@@ -40,6 +40,8 @@ func saveColoredDataPerEachIteration(currentResultDir string, iterator int, colo
 		log.Printf("can not create dir for result data:%v", err)
 	}
 
+	coloredData.HTML = strings.ReplaceAll(coloredData.HTML, "coloredCount", coloredData.PercentageColored)
+
 	_, err = io.Copy(ColoredResultInDir, strings.NewReader(coloredData.HTML))
 	if err != nil {
 		log.Printf("can not write to result colored data file %v", err)

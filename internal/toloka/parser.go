@@ -16,7 +16,8 @@ const (
 	Nonsense  = "Nonsense"
 	NoData    = "NoData"
 
-	resultFile = "internal/toloka/results_from_pool_06-12-2023.tsv"
+	resultFile         = "internal/toloka/results_from_pool_06-12-2023.tsv"
+	selfMarkResultFile = "internal/toloka/results_from_author_14.04.2024.tsv"
 )
 
 type ResultData struct {
@@ -67,7 +68,7 @@ func (r *ResultLabelsTable) maxLabel() (maxCount uint, maxLabel string) {
 }
 
 func newResultData() map[ResultData]string {
-	f, err := os.Open(resultFile)
+	f, err := os.Open(selfMarkResultFile)
 	if err != nil {
 		log.Printf("error while opening file: %v", err)
 	}
@@ -92,7 +93,12 @@ func newResultData() map[ResultData]string {
 			answer:   getIntegerFromFile(row[4]),
 			sentence: getIntegerFromFile(row[6]),
 		}
-		incrementResultLabelsTable(responseDataFromResults, currentRowFromResult, row[7])
+
+		// don't take ground truth checks
+		if row[9] != row[7] {
+			incrementResultLabelsTable(responseDataFromResults, currentRowFromResult, row[9])
+		}
+
 	}
 
 	log.Printf("complete readind result file")

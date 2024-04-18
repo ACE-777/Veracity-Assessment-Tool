@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	//pythonScript = "scripts.color_build_data"
-	pythonScript = "scripts.example"
+	//pythonScript = "scripts.color_build_data"  //colored/v1
+	pythonScript = "scripts.example" //colored/v2
 	repoDir      = "C:/Users/misha/pythonProject/chatgpt-research"
 
 	TP = "TP"
@@ -26,9 +26,8 @@ const (
 	TN = "TN"
 	FN = "FN"
 
-	flag = false
+	uniqColor = 5
 
-	uniqColor    = 5
 	useSource    = "True"
 	notUseSource = "False"
 	useSkips     = "True"  //colored/v2/2
@@ -165,12 +164,12 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			}
 
 			coloredData.Labels = labels
-			coloredData.PercentageColored = fmt.Sprintf("\n%v\n", (float64(coloredData.ColoredTokens) / float64(coloredData.LenTokens)))
+			coloredData.PercentageColored = fmt.Sprintf("%v", (float64(coloredData.ColoredTokens) / float64(coloredData.LenTokens)))
 			if pythonScript == "scripts.color_build_data" {
 				topLinksPerEachToken := getTopOneSource(coloredData)
 				arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
 
-				sentenceLenght, ColoredCount, HTML := buildPageTemplate(coloredData.Tokens, topLinksPerEachToken, arrayWithTopUniqColors)
+				sentenceLenght, ColoredCount, HTML := buildPageTemplate(coloredData.Tokens, topLinksPerEachToken, arrayWithTopUniqColors, userInput)
 				coloredData.Length = sentenceLenght
 				coloredData.Colored = ColoredCount
 				coloredData.HTML = HTML

@@ -11,7 +11,9 @@ import (
 
 const (
 	//taskFile = "internal/toloka/tasks_from_pool_06-12-2023.tsv"
-	taskFile = "internal/toloka/tasks_ready_sources_update.tsv"
+	//taskFile = "internal/toloka/tasks_ready_sources_update.tsv"
+	//taskFile = "internal/toloka/tasks_ready_sources_1.tsv"
+	taskFile = "internal/toloka/tasks_ready_sources_2.tsv"
 )
 
 type ResponseData struct {

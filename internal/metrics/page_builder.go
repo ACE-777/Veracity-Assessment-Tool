@@ -77,7 +77,7 @@ func getTopOneSource(coloredData ColoredData) []string {
 	return topSources
 }
 
-func buildLinkTemplate(tokens []string, sourceLink []string, linksWithUniqColors map[string]string) (string, []int, []int) {
+func buildLinkTemplate(tokens, sourceLink []string, linksWithUniqColors map[string]string) (string, []int, []int) {
 	tokens = removeSpecialSymbolsFromToken(tokens)
 	output := ""
 	sentenceLength := 0
@@ -144,31 +144,52 @@ var pageTemplate = `
 <head>
     <meta charset="UTF-8">
     <title>Result</title>
-    <link rel="stylesheet" type="text/css" href="../../internal/metrics/static/style_result.css">
+ 	<meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="crhome=1">
+    <link rel="stylesheet" type="text/css" href="../../internal/metrics/static/style_result_updated.css">
 </head>
 <body>
-<h1>Result of research</h1>
-<pre><b>Input text:</b></pre>
-{{ gpt_response }}
-<pre><b>Top paragraphs:</b></pre>
-{{ list_of_colors }}
-<pre><b>Result:</b></pre>
-{{ result }}
-<br>
-<br>
-<pre><b>Colored percentage: {{ coloredCount }}</b></pre>
+<div class="container">
+ 	<div class="item">
+		<h1>Result of research</h1>
+	</div>
+	<div class="item">
+		<pre><b>Input text:</b></pre>
+		{{ gpt_response }}
+	</div>
+	<div class="item">
+		<pre><b>Top paragraphs:</b></pre>
+		{{ list_of_colors }}
+	</div>
+	<div class="item">
+		<pre><b>Result:</b></pre>
+		{{ result }}
+	</div>
+	<div class="item">
+		<pre><b>Colored percentage: {{ coloredCount }}</b></pre>
+	</div>
+</div>
 </body>
 </html>
 `
 
-func buildPageTemplate(tokens []string, topLinksPerEachToken []string, linksWithUniqColors map[string]string) ([]int, []int, string) {
-	template := strings.ReplaceAll(pageTemplate, "{{ gpt_response }}", " ")
-	resultOfColor, sentenceLengthArray, countColoredTokenInSentenceArray := buildLinkTemplate(tokens, topLinksPerEachToken, linksWithUniqColors)
+func buildPageTemplate(
+	tokens []string,
+	topLinksPerEachToken []string,
+	linksWithUniqColors map[string]string,
+	userInput string,
+) ([]int, []int, string) {
+	template := strings.ReplaceAll(pageTemplate, "{{ gpt_response }}", userInput)
+
+	resultOfColor, sentenceLengthArray, countColoredTokenInSentenceArray := buildLinkTemplate(
+		tokens, topLinksPerEachToken, linksWithUniqColors)
 	resultOfListOfColors := listOfColors(linksWithUniqColors)
+
 	template = strings.ReplaceAll(template, "{{ list_of_colors }}", resultOfListOfColors)
 	template = strings.ReplaceAll(template, "{{ result }}", resultOfColor)
 	template = strings.ReplaceAll(template, "{{ coloredCount }}",
-		strconv.FormatFloat(float64(wholeCountOfColoredTokens(countColoredTokenInSentenceArray))/float64(len(tokens)), 'g', 2, 64))
+		strconv.FormatFloat(float64(wholeCountOfColoredTokens(countColoredTokenInSentenceArray))/float64(len(tokens)),
+			'g', 2, 64))
 
 	return sentenceLengthArray, countColoredTokenInSentenceArray, template
 }
