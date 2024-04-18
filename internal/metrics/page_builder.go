@@ -149,8 +149,8 @@ var pageTemplate = `
     <link rel="stylesheet" type="text/css" href="../../internal/metrics/static/style_result_updated.css">
 </head>
 <body>
+<div class="topper"></div>
 <div class="container">
-	<div class="topper"></div>
  	<div class="item">
 		<h1>Result of research</h1>
 	</div>
