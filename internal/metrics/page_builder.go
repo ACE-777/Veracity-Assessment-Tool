@@ -84,7 +84,7 @@ func buildLinkTemplate(tokens, sourceLink []string, linksWithUniqColors map[stri
 	countColoredTokenInSentence := 0
 	sentenceLengthArray := make([]int, 0)
 	countColoredTokenInSentenceArray := make([]int, 0)
-	linkTemplate := "<a href=\"%s\" class=\"%s\">%s</a>"
+	linkTemplate := "<a href='%s' class=\"%s\">%s</a>"
 	withoutLinkTemplate := "<i class=\"%s\">%s</i>"
 
 	for i, key := range tokens {
@@ -128,7 +128,7 @@ func buildLinkTemplate(tokens, sourceLink []string, linksWithUniqColors map[stri
 
 func listOfColors(dictWithUniqColors map[string]string) string {
 	output := ""
-	listOfArticles := "<a href=\"%s\" class=\"%s\">%s</a></br>"
+	listOfArticles := "<a href='%s' class=\"%s\">%s</a></br>"
 
 	for key, value := range dictWithUniqColors {
 		output += fmt.Sprintf(listOfArticles, key, value, key)
