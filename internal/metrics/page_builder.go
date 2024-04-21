@@ -85,7 +85,7 @@ func buildLinkTemplate(tokens, sourceLink []string, linksWithUniqColors map[stri
 	sentenceLengthArray := make([]int, 0)
 	countColoredTokenInSentenceArray := make([]int, 0)
 	linkTemplate := "<a href='%s' class=\"%s\">%s</a>"
-	withoutLinkTemplate := "<i class=\"%s\">%s</i>"
+	withoutLinkTemplate := "<a class=\"%s\">%s</a>"
 
 	for i, key := range tokens {
 		src := sourceLink[i]
@@ -128,13 +128,14 @@ func buildLinkTemplate(tokens, sourceLink []string, linksWithUniqColors map[stri
 
 func listOfColors(dictWithUniqColors map[string]string) string {
 	output := ""
-	listOfArticles := "<a href='%s' class=\"%s\">%s</a></br>"
+	listOfArticles := "<div class=\"item_paragraphes\">" +
+		"<a href='%s' class=\"%s\">%s</a>" +
+		"</div>\n"
 
 	for key, value := range dictWithUniqColors {
 		output += fmt.Sprintf(listOfArticles, key, value, key)
 	}
 
-	output += "</br>"
 	return output
 }
 
@@ -146,6 +147,9 @@ var pageTemplate = `
     <title>Result</title>
  	<meta name="viewport" content="width=device-width,initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="crhome=1">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Platypi:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="../../internal/metrics/static/style_result_updated.css">
 </head>
 <body>
@@ -155,19 +159,19 @@ var pageTemplate = `
 		<h1>Result of research</h1>
 	</div>
 	<div class="item">
-		<pre><b>Input text:</b></pre>
+		<h3>Input text</h3>
 		{{ gpt_response }}
 	</div>
 	<div class="item">
-		<pre><b>Top paragraphs:</b></pre>
+		<h3>Top paragraphs</h3>
 		{{ list_of_colors }}
 	</div>
 	<div class="item">
-		<pre><b>Result:</b></pre>
+		<h3>Result</h3>
 		{{ result }}
 	</div>
 	<div class="item">
-		<pre><b>Colored percentage: {{ coloredCount }}</b></pre>
+		<h3>Colored percentage: {{ coloredCount }} %</h3>
 	</div>
 </div>
 </body>
