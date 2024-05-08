@@ -61,6 +61,10 @@ body {
 .a.color * {
     text-decoration: underline;
 }
+a:hover{
+    background: #f73;
+    color: yellow;
+}
 
 .head{
     margin-bottom: 10px;
