@@ -74,7 +74,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 		timestamp = time.Now().UTC().Add(time.Hour * 3).Format("2006-01-02T15-04-05")
 	)
 
-	sem := make(chan struct{}, 1)
+	sem := make(chan struct{}, 2)
 
 	fileResultName := fmt.Sprintf("result_data_%v.%v", timestamp, "txt")
 	fileResultData, err := os.Create(fileResultName)
@@ -110,7 +110,6 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				labels[sentenceNumber] = sentence.Label
 			}
 
-			//fmt.Println("otput:", userInput)
 			cmd := exec.Command(
 				"python",
 				"-m",
@@ -182,7 +181,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 			saveMetaDataPerEachIteration(currentResultDir, iterator, coloredData)
 		}()
 
-		break
+		//break
 	}
 
 	wg.Wait()
