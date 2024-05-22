@@ -1,19 +1,25 @@
 # Configuration
+Before setup this repo, you need to get https://github.com/ACE-777/chatgpt-research ang loaclly set up it.
+
 ## For local execution
 ### Windows
-Set env variables in system settings for path with 
+1. Set env variables in system settings for path with 
 usage python interpreter for python repo with colored
-and usage conda. Then reboot computer.
+and usage conda.Do it like on screenshot `C:Users\misha\miniconda3\envs\gpt-gpu-39` and 
+`C:Users\misha\miniconda3\Scripts`.Then reboot computer.
 ![img.png](img.png)
-## Versions of coloring
-branches:
-- dev/colored/v1/1 - coloring first version
-- dev/colored/v2/1 - coloring second version with new approache without skipping
 
-soon...:
-- dev/colored/v1/2 - coloring with lucine
-- dev/colored/v2/2 - coloring with skiping 3 tokens 
-- dev/colored/v2/3 - coloring with colBert  
 
-## To generate proto file
-protoc -I=. --go_out=. ./matrix.proto
+2. Then you need to write absolute path to python scripts dir of https://github.com/ACE-777/chatgpt-research in 
+`internal\metrics\colored.go` constant `repoDir`.
+
+
+3. Then you can choose type of algorithm version with constant pythonScript in `internal\metrics\colored.go`.
+
+
+4. After you can run server with tool from the root of the present repository:
+```bash
+go run cmd\toloka-metrics\main.go
+```
+
+5. Go to home page of tool http:\\localhost:8080\home
