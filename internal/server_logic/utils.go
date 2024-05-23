@@ -263,8 +263,7 @@ func buildPageTemplate(
 	template = strings.ReplaceAll(template, "{{ result }}", resultOfColor)
 	template = strings.ReplaceAll(template, "{{ coloredCount }}",
 		strconv.Itoa(int(math.Round((float64(countColoredTokenInSentenceArray) / float64(len(tokens)) * 100)))))
-	fmt.Println("countColoredTokenInSentenceArray:", countColoredTokenInSentenceArray)
-	fmt.Println("len(tokens):", len(tokens))
+
 	return template
 }
 
