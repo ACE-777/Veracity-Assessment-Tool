@@ -83,6 +83,40 @@ a:hover {color: #ffcc00;}
     margin-bottom: 10px;
 }
 
+.allButton{
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    height: 20px;
+    width: 60px;
+    border-radius: 15px;
+}
+
+#textareainputOne {
+    width: 90%;
+    border-radius: 5px;
+}
+
+#textareainputTwo {
+    width: 90%;
+    border-radius: 5px;
+}
+
+
+.back-button {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    padding: 5px 10px;
+    background-color: #007BFF;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+.back-button:hover {
+    background-color: #0056b3;
+}
+
 .color0 {color: black;}
 .color1 {color: #FF00FF;}
 .color2 {color: #9370DB;}

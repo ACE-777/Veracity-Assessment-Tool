@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	//pythonScript = "scripts.color_build_data"  //colored/v1
-	pythonScript = "scripts.example" //colored/v2
+	//pythonScript = "scripts.algorithm_1"  //colored/v1
+	pythonScript = "scripts.algorithm_2" //colored/v2
 	repoDir      = "C:/Users/misha/pythonProject/chatgpt-research"
 
 	TP = "TP"
@@ -150,7 +150,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 				log.Printf("Can't convert bytes to json struct coloredData %v", err)
 			}
 
-			if pythonScript == "scripts.example" {
+			if pythonScript == "scripts.algorithm_2" {
 				if err = json.Unmarshal([]byte(coloredData.AllChainsAfterSorting), &chains); err != nil {
 					fmt.Println("Ошибка декодирования 1 JSON:", err)
 					return
@@ -164,7 +164,7 @@ func GetColored(res map[toloka.ResponseData][]toloka.Sentence) ([]float64, []str
 
 			coloredData.Labels = labels
 			coloredData.PercentageColored = fmt.Sprintf("%v", (float64(coloredData.ColoredTokens) / float64(coloredData.LenTokens)))
-			if pythonScript == "scripts.color_build_data" {
+			if pythonScript == "scripts.algorithm_1" {
 				topLinksPerEachToken := getTopOneSource(coloredData)
 				arrayWithTopUniqColors := buildDictForColor(topLinksPerEachToken, uniqColor)
 

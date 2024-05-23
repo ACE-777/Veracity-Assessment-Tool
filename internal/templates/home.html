@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Home</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="crhome=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Platypi:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="../static/style_result_updated.css">
+</head>
+<body>
+<div class="topper"></div>
+<div class="container">
+  <div class="item">
+    <h3>Home page</h3>
+  </div>
+  <div class="item">
+    <form action="/coloring" method="post" enctype="multipart/form-data">
+      <p><label for="textareainputOne" class="head">Just put the answer from GAN to get a veracity rating:</label></p>
+      <textarea id="textareainputOne" name="textareainputOne" rows="5" cols="40"></textarea>
+      <fieldset>
+        <legend class="head">Choose type of algorithm:</legend>
+        <div>
+          <input type="radio" id="oneradio" name="oneradio" value="First" required />
+          <label for="oneradio">First</label>
+        </div>
+        <div>
+          <input type="radio" id="tworadio" name="oneradio" value="Second" required />
+          <label for="tworadio">Second</label>
+        </div>
+        <div>
+          <button class="allButton" type="submit" value="submit">Submit</button>
+          <button class="allButton" type="reset" value="reset">Reset</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div class="item">
+    <form action="/store/sources" method="post" enctype="multipart/form-data">
+      <p><label for="textareainputTwo" class="head">To build search database — just place in a column the related page names of Wikipedia documents and unrelated page names in equal quantities:</label></p>
+      <textarea id="textareainputTwo" name="textareainputTwo" rows="5" cols="40"></textarea>
+      <button class="allButton" type="submit" value="submit">Submit</button>
+      <button class="allButton" type="reset" value="reset">Reset</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>
