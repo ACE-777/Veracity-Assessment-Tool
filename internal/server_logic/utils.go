@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	repoDir = "C:/Users/misha/pythonProject/chatgpt-research"
+	repoDir                   = "C:/Users/misha/pythonProject/chatgpt-research"
+	buildSearchDatabaseScript = "scripts.search_database"
 
 	useSkips = "True"
 
@@ -30,6 +31,10 @@ type coloredDataFirst struct {
 	ResultSources  [][]string  `json:"result_sources"` //sources with variants on each token
 	Tokens         []string    `json:"tokens"`         //all tokens from input text
 	ResultDistance [][]float64 `json:"result_dists"`   //cos dist result for each token with variants
+}
+
+type buildDatabase struct {
+	Result string `json:"result"` // send the result of bilding search database
 }
 
 func getColoredFirst(userInput string) {
@@ -224,7 +229,7 @@ var pageTemplate = `
 </head>
 <body>
 <div class="topper">
-  <a href="/home/" class="back-button"><-</a>
+  <a href="/home/" class="back-button">Back</a>
 </div>
 <div class="container">
 	<div class="item">
@@ -324,4 +329,51 @@ func getColoredSecond(userInput string) {
 	}
 
 	log.Println("end iteration of algorithm")
+}
+
+func buildSearchDatabase(userInput string) {
+	articles := strings.Fields(userInput)
+	var prepareArticles string
+	for _, article := range articles {
+		prepareArticles = prepareArticles + strings.Split(article, "https://en.wikipedia.org/wiki/")[1] + " "
+	}
+
+	cmd := exec.Command(
+		"python",
+		"-m",
+		buildSearchDatabaseScript,
+		"--articles", prepareArticles,
+	)
+	cmd.Dir = repoDir
+
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		log.Printf("Can't execute python script, err:%v", err)
+	}
+
+	defer stdin.Close()
+
+	var output bytes.Buffer
+	cmd.Stdout = &output
+	cmd.Stderr = os.Stderr
+	if err = cmd.Start(); err != nil {
+		log.Printf("error in starting python commnad: %v", err)
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println("out2::", string(output.Bytes()))
+	var buildDatabaseFinal buildDatabase
+	if err = json.Unmarshal(output.Bytes(), &buildDatabaseFinal); err != nil {
+		log.Printf("Can't convert bytes to json struct buildDatabase %v", err)
+	}
+
+	if buildDatabaseFinal.Result == "Success" {
+		log.Println("end building search database")
+	} else {
+		log.Println("incorrect building search database")
+	}
+
 }
