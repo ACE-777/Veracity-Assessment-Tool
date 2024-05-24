@@ -64,6 +64,10 @@ func storeSources(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "method must be POST", http.StatusNotFound)
 	}
 
+	userInput := r.FormValue("textareainputTwo")
+
+	buildSearchDatabase(userInput)
+
 	if err := tmpl.ExecuteTemplate(w, "store_sources.html", nil); err != nil {
 		log.Fatalf("can not execute template proceed: %v", err)
 	}
