@@ -1,37 +1,9 @@
-var i = 0;
-function move_1() {
-    if (i === 0) {
-        i = 1;
-        var elem = document.getElementById("myBar");
-        var width = 1;
-        var id = setInterval(frame, 10);
-        function frame() {
-            if (width >= 100) {
-                clearInterval(id);
-                i = 0;
-            } else {
-                width++;
-                elem.style.width = width + "%";
-            }
-        }
-    }
+function showPreloader() {
+    document.getElementById('mask').style.display = 'block';
+    document.getElementById('preloader').style.display = 'block';
 }
 
-var i = 0;
-function move_2() {
-    if (i === 0) {
-        i = 1;
-        var elem = document.getElementById("myBar");
-        var width = 1;
-        var id = setInterval(frame, 10);
-        function frame() {
-            if (width >= 100) {
-                clearInterval(id);
-                i = 0;
-            } else {
-                width++;
-                elem.style.width = width + "%";
-            }
-        }
-    }
-}
+window.addEventListener('load', function () {
+    document.getElementById('mask').style.display = 'none';
+    document.getElementById('preloader').style.display = 'none';
+});

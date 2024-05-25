@@ -17,7 +17,7 @@
     <h3>Home page</h3>
   </div>
   <div class="item">
-    <form action="/coloring" method="post" enctype="multipart/form-data">
+    <form action="/coloring" method="post" enctype="multipart/form-data" onsubmit="showPreloader()">
       <p><label for="textareainputOne" class="head">Just put the answer from GAN to get a veracity rating:</label></p>
       <textarea id="textareainputOne" name="textareainputOne" rows="5" cols="40"></textarea>
       <p>Choose type of algorithm:</p>
@@ -31,29 +31,24 @@
           <label for="tworadio">Second</label>
         </div>
         <div class="button-container">
-          <button onclick="move_1()" class="submitButton" type="submit" value="submit">Submit</button>
+          <button class="submitButton" type="submit" value="submit">Submit</button>
           <button class="resetButton" type="reset" value="reset">Reset</button>
         </div>
       </fieldset>
-      <div id="myProgress">
-        <div id="myBar"></div>
-      </div>
-      <script src="../static/script.js"></script>
     </form>
   </div>
+  <script src="../static/script.js"></script>
+  <div class="mask" id="mask"></div>
+  <div class="preloader" id="preloader"></div>
   <div class="item">
-    <form action="/store/sources" method="post" enctype="multipart/form-data">
+    <form action="/store/sources" method="post" enctype="multipart/form-data" onsubmit="showPreloader()">
       <p><label for="textareainputTwo" class="head">To build search database — just put the links of Wikipedia documents and unrelated page names in equal quantities seperated by a space.</label></p>
       <textarea id="textareainputTwo" name="textareainputTwo" rows="5" cols="40"></textarea>
       <div class="button-container">
-      <button onclick="move_2()" class="submitButton" type="submit" value="submit">Submit</button>
+      <button class="submitButton" type="submit" value="submit">Submit</button>
       <button class="resetButton" type="reset" value="reset">Reset</button>
       </div>
     </form>
-    <div id="myProgress">
-      <div id="myBar"></div>
-    </div>
-    <script src="../static/script.js"></script>
   </div>
 </div>
 </body>

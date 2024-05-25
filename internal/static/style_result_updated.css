@@ -23,8 +23,6 @@ body {
     font-weight: 500;
     font-style: normal;
     background-color: #F0F0F0;
-    /*background: rgb(195,195,195);*/
-    /*background: radial-gradient(circle, rgba(195,195,195,1) 0%, rgba(186,186,187,1) 54%, rgba(167,167,167,1) 100%);*/
     justify-content: center;
     align-items: center;
 }
@@ -41,7 +39,6 @@ body {
     margin: 10px;
     padding: 16px;
     border-radius:  8px;
-    /*box-shadow: rgba(50, 50, 93, 0.25) 0 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0 18px 36px -18px inset;*/
     background-color: white;
     box-shadow: #24242448 0  4px 20px -8px ;
     border: 1px solid #cccccc;
@@ -60,7 +57,6 @@ fieldset{
     margin: 3px;
     padding: 5px;
     border-radius:  15px;
-    /*box-shadow: rgba(50, 50, 93, 0.25) 0 30px 60px -12px inset, rgba(0, 0, 0, 0.2) 0 18px 36px -18px inset;*/
     font-size: 16px;
     max-width: 100%;
     width: fit-content;
@@ -170,18 +166,37 @@ a:hover {color: #ffcc00;}
     background-color: #0056b3;
 }
 
-#myProgress {
-    margin-top: 10px;
+.preloader {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #eed602;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    z-index: 1000;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.mask {
+    display: flex;
+    position: fixed;
+    top: 0;
     width: 100%;
-    background-color: #ddd;
+    height: 100%;
+    background: #fff;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
 }
-
-#myBar {
-    width: 1%;
-    height: 30px;
-    background-color: #eed602;
-}
-
 
 .color0 {color: black;}
 .color1 {color: #FF00FF;}
