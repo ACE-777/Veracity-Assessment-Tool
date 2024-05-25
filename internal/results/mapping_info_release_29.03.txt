@@ -37,3 +37,5 @@
      22_05_24 trashold 0.9 5 соседей и формула первая score *= math.log2(2 + l)
 
      24_05_24 trashold 0.85 5 соседей и формула первая score *= math.log2(2 + l)
+
+     25_05_24 trashold 0.8 5 соседей и формула первая score *= math.log2(2 + l)
