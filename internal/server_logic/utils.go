@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"net/url"
 	"os"
 	"os/exec"
 	"sort"
@@ -208,7 +209,12 @@ func listOfColors(dictWithUniqColors map[string]string) string {
 		"</div>\n"
 
 	for key, value := range dictWithUniqColors {
-		output += fmt.Sprintf(listOfArticles, key, value, key)
+		link, err := url.QueryUnescape(strings.Split(key, "https://en.wikipedia.org/wiki/")[1])
+		if err != nil {
+			log.Printf("can not decode link:%v", err)
+		}
+
+		output += fmt.Sprintf(listOfArticles, key, value, link)
 	}
 
 	return output
@@ -364,7 +370,7 @@ func buildSearchDatabase(userInput string) {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println("out2::", string(output.Bytes()))
+
 	var buildDatabaseFinal buildDatabase
 	if err = json.Unmarshal(output.Bytes(), &buildDatabaseFinal); err != nil {
 		log.Printf("Can't convert bytes to json struct buildDatabase %v", err)
