@@ -39,3 +39,7 @@
      24_05_24 trashold 0.85 5 соседей и формула первая score *= math.log2(2 + l)
 
      25_05_24 trashold 0.8 5 соседей и формула первая score *= math.log2(2 + l)
+
+     25_05_24_second trashold 0.8 5 соседей и формула score *= (2 ** l) * (10 ** (self.skip + 3*self.count_of_skipping))
+
+     25_05_24_third trashold 0.85 5 соседей и формула score *= (2 ** l) * (10 ** (self.skip + 3*self.count_of_skipping))
