@@ -22,4 +22,4 @@ and usage conda.Do it like on screenshot `C:Users\misha\miniconda3\envs\gpt-gpu-
 go run cmd\toloka-metrics\main.go
 ```
 
-5. Go to home page of tool http:\\localhost:8080\home
+5. Go to home page of tool http:\\localhost:9000\home
