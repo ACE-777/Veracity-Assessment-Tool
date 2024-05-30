@@ -14,7 +14,7 @@ and usage conda.Do it like on screenshot `C:Users\misha\miniconda3\envs\gpt-gpu-
 `internal\metrics\colored.go` constant `repoDir`.
 
 
-3. Then you can choose type of algorithm version with constant pythonScript in `internal\metrics\colored.go`.
+3. Then you can choose type of algorithm version with constant pythonScript in `internal\metrics\colored.go` for pipeline.
 
 
 4. After you can run server with tool from the root of the present repository:
